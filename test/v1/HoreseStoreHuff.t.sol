@@ -17,4 +17,11 @@ contract HorseStoreHuff is Base_TestV1 {
         uint256 initialValue = horsestore.readNumberOfHorses();
         assertEq(initialValue, 0);
     }
+
+    function testWriteValue(uint256 numberOfHorses) public {
+        uint256 numberOfHorses = 777;
+        horsestore.updateHorseNumber(numberOfHorses);
+        uint256 updatedValue = horsestore.readNumberOfHorses();
+        assertEq(updatedValue, numberOfHorses);
+    }
 }
