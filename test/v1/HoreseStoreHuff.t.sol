@@ -24,4 +24,20 @@ contract HorseStoreHuff is Base_TestV1 {
         uint256 updatedValue = horsestore.readNumberOfHorses();
         assertEq(updatedValue, numberOfHorses);
     }
+
+    function testStoreAndReadHorseNumberYul() public {
+        uint256 numberOfHorses = 77;
+        horsestore.updateHorseNumber(numberOfHorses);
+        assertEq(horsestore.readNumberOfHorses(), numberOfHorses);
+    }
+
+    function testCompareHorseStores(uint256 randomNumberToStore) public {
+        horsestore.updateHorseNumber(randomNumberToStore);
+        horsestore.updateHorseNumber(randomNumberToStore);
+        horsestore.updateHorseNumber(randomNumberToStore);
+
+        assertEq(horsestore.readNumberOfHorses(), randomNumberToStore);
+        assertEq(horsestore.readNumberOfHorses(), randomNumberToStore);
+        assertEq(horsestore.readNumberOfHorses(), randomNumberToStore);
+    }
 }
