@@ -96,59 +96,69 @@ REVERT          // []
 JUMPDEST        // [func_selector]
 PUSH1 0x43      // [0x43, func_selector]
 PUSH1 0x3f      // [0x3f, 0x43, func_selector]
-
 CALLDATASIZE    // [calldata_size, 0x3f, 0x43, func_selector]
 PUSH1 0x04      // [0x43, func_selector]
 PUSH1 0x59      // [0x59, 0x43, func_selector]
 JUMP            // [0x04, calldata_size, 0x3f, 0x43, func_selector]
 
 // updateNumberOfHorses jump dest 2
-JUMPDEST
-PUSH0
-SSTORE
-JUMP
+JUMPDEST        // [CALLDATA[4:], 0x43, func_selector]
+PUSH0           // [0x00, CALLDATA[4:], 0x43, func_selector]
+SSTORE          // [0x43, func_selector]
+JUMP            // [func_selector]
+
+// jump dest 5
 JUMPDEST
 STOP
-JUMPDEST
-PUSH0
-SLOAD
-PUSH1 0x40
-MLOAD
-SWAP1
-DUP2
-MSTORE
-PUSH1 0x20
-ADD
-PUSH1 0x40
-MLOAD
-DUP1
-SWAP2
-SUB
-SWAP1
-RETURN
+
+// readHorseNumber jump dest 
+JUMPDEST    // [function_selector]
+PUSH0       // [0x00, function_selector]
+SLOAD       // [number_of_horses, function_selector]
+PUSH1 0x40  // [0x40, number_of_horses, function_selector]
+MLOAD       // [0x80, number_of_horses, function_selector]
+SWAP1       // [number_of_horses, 0x80, function_selector]
+DUP2        // [0x80, number_of_horses, 0x80, function_selector]
+MSTORE      // [0x80, function_selector]
+PUSH1 0x20  // [0x20, 0x80, function_selector]
+ADD         // [0xa0, function_selector]
+PUSH1 0x40  // [0x40, 0xa0, function_selector]
+MLOAD       // [0x80, 0xa0, function_selector]
+DUP1        // [0x80, 0x80, 0xa0, function_selector]
+SWAP2       // [0xa0, 0x80, 0x80, function_selector]
+SUB         // [0x20, 0x80, function_selector]
+SWAP1       // [0x80, 0x20, function_selector]
+RETURN      // [function_selector]
 
 // updateHorseNumber jump dest 2
 JUMPDEST    // [0x04, calldata_size, 0x3f, 0x43, func_selector]
-PUSH0       // [0, 0x04, calldata_size, 0x3f, 0x43, func_selector]
-PUSH1 0x20  // [0x20, 0, 0x04, calldata_size, 0x3f, 0x43, func_selector]
-DUP3        // [0x04, 0x20, ]
-DUP5
-SUB
-SLT
-ISZERO
-PUSH1 0x68
-JUMPI
-PUSH0
-DUP1
-REVERT
-JUMPDEST
-POP
-CALLDATALOAD
-SWAP2
-SWAP1
-POP
-JUMP
+PUSH0       // [0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+PUSH1 0x20  // [0x20, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+DUP3        // [0x04, 0x20, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+DUP5        // [calldata_size, 0x04, 0x20, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+SUB         // [calldata_size - 0x04, 0x20, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+SLT         // [(calldata_size - 0x04) < 0x20, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+ISZERO      // [((calldata_size - 0x04) < 0x20) == 0, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+PUSH1 0x68  // [0x68, ((calldata_size - 0x04) < 0x20) == 0, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+JUMPI       // [0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+// we are going to jump to jump dest3 if there is more call
+
+// revert if there isn't enough data
+PUSH0       //[0x00, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+DUP1        // [0x00, 0x00, 0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+REVERT      // []
+
+
+JUMPDEST    // [0x00, 0x04, calldata_size, 0x3f, 0x43, func_selector]
+POP         // [0x04, calldata_size, 0x3f, 0x43, func_selector]
+CALLDATALOAD    // [CALLDATA_32BYTES[4:], calldata_size, 0x3f, 0x43, func_selector]
+SWAP2       //[0x3f, calldata_size, CALLDATA_32BYTES[4:], 0x43, func_selector]
+SWAP1       // [calldata_size, 0x3f, CALLDATA_32BYTES[4:], 0x43, func_selector]
+POP         // [0x3f, CALLDATA_32BYTES[4:], 0x43, func_selector]
+JUMP        // [CALLDATA[4:], 0x43, func_selector]
 INVALID
+
+// metadata
 LOG2
 PUSH5 0x6970667358
 INVALID
